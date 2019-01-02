@@ -31,7 +31,9 @@ def create_geojson(coordinates):
     return geojson
 
 def create_data(start_location, end_location, x, min_max):
-    # Create a string with all the geo coordinates
+    """
+    Prepares the data for the routes to be plotted. 
+    """
     global init, G, M, algorithms
     
     if not init:
@@ -40,7 +42,7 @@ def create_data(start_location, end_location, x, min_max):
         algorithms = Algorithms(G, x = x, mode = min_max)
         init = True
     
-    shortestPath, elevPath = algorithms.shortest_path(start_location, end_location, x, mode = min_max)   
+    shortestPath, elevPath = algorithms.shortest_path(start_location, end_location, x, mode = min_max,log=True)   
     
     if shortestPath is None and elevPath is None:
         data = {"elevation_route" : [] , "shortest_route" : []}        
@@ -67,7 +69,9 @@ def create_data(start_location, end_location, x, min_max):
     
 @app.route('/mapbox_gl_new')
 def mapbox_gl_new():    
-    """ get your data here and return it as json """    
+    """ 
+    Renders the template html file
+    """    
 
     return render_template(
         'mapbox_gl_new.html', 
@@ -76,7 +80,11 @@ def mapbox_gl_new():
 
 
 @app.route('/route',methods=['POST'])
-def get_route():    
+def get_route():  
+    """
+    Prepares data required by the POST.
+    Dumped as a JSON.
+    """  
     data=request.get_json(force=True)
     route_data = create_data((data['start_location']['lat'],data['start_location']['lng']),(data['end_location']['lat'],data['end_location']['lng']),data['x'],data['min_max'])
     return json.dumps(route_data)
